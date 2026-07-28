@@ -1,0 +1,37 @@
+#!/bin/sh
+set -e
+
+echo "DakuOS: installing extra applications (Ghostty + VS Code)..."
+
+# ------------------------------------------------------------------
+# Visual Studio Code – official Microsoft repository
+# ------------------------------------------------------------------
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
+  | gpg --dearmor > /usr/share/keyrings/packages.microsoft.gpg
+
+cat > /etc/apt/sources.list.d/vscode.sources << 'EOF'
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64 arm64 armhf
+Signed-By: /usr/share/keyrings/packages.microsoft.gpg
+EOF
+
+apt-get update
+apt-get install -y code
+
+# ------------------------------------------------------------------
+# Ghostty – third-party package (not yet in official Debian)
+# Using deb.griffo.io which provides builds for Forky / Testing
+# ------------------------------------------------------------------
+wget -qO- https://deb.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc \
+  | gpg --dearmor > /usr/share/keyrings/deb.griffo.io.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/deb.griffo.io.gpg] https://deb.griffo.io/apt forky main" \
+  > /etc/apt/sources.list.d/deb.griffo.io.list
+
+apt-get update
+apt-get install -y ghostty || echo "WARNING: Ghostty package not found – will need manual packaging later"
+
+echo "DakuOS: extra applications step finished."
