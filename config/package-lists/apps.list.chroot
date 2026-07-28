@@ -1,0 +1,17 @@
+# Core applications shipped with DakuOS
+
+# Browser – Firefox Extended Support Release (stable on Testing)
+firefox-esr
+
+# Terminal – Ghostty will be installed via hook from third-party repo
+# (see config/hooks/live/010-install-extra-apps.hook.chroot)
+
+# Code editor – Visual Studio Code will be installed via Microsoft repo
+# (see config/hooks/live/010-install-extra-apps.hook.chroot)
+
+# Supporting tools
+git
+curl
+wget
+htop
+neovim
