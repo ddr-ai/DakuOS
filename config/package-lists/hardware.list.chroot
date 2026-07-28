@@ -1,0 +1,41 @@
+# DakuOS hardware support – Testing packages only
+#
+# Target reference hardware:
+#   - Intel Core Ultra 288V (Lunar Lake)
+#   - 2-in-1 convertible (tablet mode + rotation)
+#   - Wi-Fi 6E / Wi-Fi 7 (2.4 / 5 / 6 GHz)
+#   - NVMe SSD
+
+# ---- Intel Core Ultra (Lunar Lake) ----
+intel-microcode
+thermald
+power-profiles-daemon
+intel-gpu-tools
+mesa-vulkan-drivers
+intel-media-va-driver-non-free
+i965-va-driver
+libva-utils
+vulkan-tools
+
+# ---- Sensors / 2-in-1 tablet mode + rotation ----
+iio-sensor-proxy
+# On-screen keyboard when in tablet mode (Plasma)
+plasma-mobile-settings
+maliit-keyboard
+maliit-framework
+
+# ---- Wi-Fi (firmware + tools) ----
+firmware-iwlwifi
+iw
+wireless-tools
+rfkill
+
+# ---- SSD / storage performance ----
+fstrim
+nvme-cli
+smartmontools
+
+# ---- Boot / performance helpers ----
+plymouth
+plymouth-themes
+systemd-timesyncd
