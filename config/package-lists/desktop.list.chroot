@@ -9,7 +9,8 @@ sddm
 
 # Basic system tools that belong with a desktop
 network-manager
-network-manager-gnome
+network-manager-applet
+nm-connection-editor
 bluez
 pulseaudio
 pavucontrol-qt
