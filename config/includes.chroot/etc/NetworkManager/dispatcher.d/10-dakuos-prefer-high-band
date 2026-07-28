@@ -1,0 +1,48 @@
+#!/bin/sh
+# DakuOS: after a successful Wi-Fi association, if the same SSID is visible
+# on a higher band with decent signal, migrate to it.
+#
+# Runs as NetworkManager dispatcher script.
+# Arguments: $1 = interface, $2 = action
+
+IFACE="$1"
+ACTION="$2"
+
+[ "$ACTION" = "up" ] || exit 0
+
+# Only act on Wi-Fi interfaces
+case "$IFACE" in
+  wl*|wlan*) ;;
+  *) exit 0 ;;
+esac
+
+# Require nmcli
+command -v nmcli >/dev/null 2>&1 || exit 0
+
+SSID=$(nmcli -t -f GENERAL.CONNECTION device show "$IFACE" 2>/dev/null | cut -d: -f2-)
+[ -n "$SSID" ] || exit 0
+
+# Find best BSSID for this SSID: prefer 6 GHz, then 5 GHz, then highest signal
+# nmcli device wifi list columns: IN-USE,BSSID,SSID,MODE,CHAN,RATE,SIGNAL,BARS,SECURITY,BAND (NM 1.58+)
+BEST=$(nmcli -t -f SSID,BSSID,SIGNAL,CHAN,BAND device wifi list 2>/dev/null \
+  | awk -F: -v ssid="$SSID" '
+      $1 == ssid {
+        band=$5; sig=$3; bssid=$2; chan=$4
+        score = sig + 0
+        if (band ~ /6/) score += 200
+        else if (chan >= 36) score += 100
+        if (score > best) { best=score; pick=bssid }
+      }
+      END { if (pick) print pick }
+    ')
+
+[ -n "$BEST" ] || exit 0
+
+CURRENT=$(nmcli -t -f GENERAL.HWADDR device show "$IFACE" 2>/dev/null | head -1 | cut -d: -f2-)
+# If already on the preferred BSSID, nothing to do
+echo "$CURRENT" | grep -qi "$(echo "$BEST" | tr -d ':')" 2>/dev/null && exit 0
+
+# Re-activate the connection locked to the preferred BSSID (one-shot)
+nmcli device wifi connect "$SSID" bssid "$BEST" ifname "$IFACE" >/dev/null 2>&1 || true
+
+exit 0
