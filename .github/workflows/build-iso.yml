@@ -21,42 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
 
-    # Use a real Debian image so we get a modern live-build
-    container:
-      image: debian:testing
-      options: --privileged
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install live-build and dependencies
-        run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            live-build \
-            debootstrap \
-            squashfs-tools \
-            xorriso \
-            isolinux \
-            syslinux-utils \
-            grub-pc-bin \
-            grub-efi-amd64-bin \
-            mtools \
-            dosfstools \
-            rsync \
-            git \
-            curl \
-            wget \
-            gnupg \
-            ca-certificates \
-            debian-archive-keyring
-
-      - name: Make scripts executable
-        run: |
-          chmod +x auto/config
-          find config/hooks -type f -name '*.hook.*' -exec chmod +x {} \; || true
 
       - name: Read version
         id: version
@@ -65,17 +32,56 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Using version: ${VERSION}"
 
-      - name: Configure live-build
+      - name: Make scripts executable
         run: |
-          ./auto/config
-          echo "=== Configuration dump ==="
-          lb config --dump || true
+          chmod +x auto/config
+          find config/hooks -type f -name '*.hook.*' -exec chmod +x {} \; || true
 
-      - name: Build the ISO
+      # Run the entire live-build inside a privileged Debian container.
+      # This gives us a modern live-build (Ubuntu's package is too old)
+      # while still allowing chroot/mount operations that the Actions
+      # "container:" job feature does not support well.
+      - name: Build ISO with live-build (Debian container)
         run: |
-          set -o pipefail
-          # live-build needs root privileges for chroot stages
-          lb build 2>&1 | tee build.log
+          set -euo pipefail
+
+          docker run --rm --privileged \
+            -v "$PWD:/build" \
+            -w /build \
+            debian:testing \
+            bash -c '
+              set -euo pipefail
+              export DEBIAN_FRONTEND=noninteractive
+
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                live-build \
+                debootstrap \
+                squashfs-tools \
+                xorriso \
+                isolinux \
+                syslinux-utils \
+                grub-pc-bin \
+                grub-efi-amd64-bin \
+                mtools \
+                dosfstools \
+                rsync \
+                git \
+                curl \
+                wget \
+                gnupg \
+                ca-certificates \
+                debian-archive-keyring
+
+              # Prevent package postinst scripts from trying to start services
+              printf "#!/bin/sh\nexit 101\n" > /usr/sbin/policy-rc.d
+              chmod +x /usr/sbin/policy-rc.d
+
+              ./auto/config
+              lb config --dump || true
+
+              lb build 2>&1 | tee build.log
+            '
 
       - name: Rename ISO to daku-<version>-amd64.iso
         if: success()
@@ -84,7 +90,7 @@ jobs:
           mkdir -p daku_iso
 
           # live-build typically produces live-image-amd64.hybrid.iso
-          SOURCE=$(ls -1 *.hybrid.iso *.iso 2>/dev/null | head -n1)
+          SOURCE=$(ls -1 *.hybrid.iso *.iso 2>/dev/null | head -n1 || true)
 
           if [ -z "$SOURCE" ]; then
             echo "ERROR: No ISO file found after build"
