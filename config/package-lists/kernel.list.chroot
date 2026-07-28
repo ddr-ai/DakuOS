@@ -1,0 +1,13 @@
+# DakuOS kernel – always the newest linux-image from Debian Testing (Forky)
+#
+# Current Testing metapackage tracks linux 7.0.x (e.g. 7.0.10+deb14-amd64).
+# live-build also installs this via --linux-flavours amd64; listing it here
+# makes the intent explicit and keeps headers available for out-of-tree modules.
+
+linux-image-amd64
+linux-headers-amd64
+linux-base
+
+# Firmware helpers often needed with a modern kernel
+intel-microcode
+amd64-microcode
