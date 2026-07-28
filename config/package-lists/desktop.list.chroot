@@ -1,16 +1,26 @@
-# DakuOS default desktop – KDE Plasma
+# DakuOS default desktop – KDE Plasma (Debian Testing / Forky)
+#
+# task-kde-desktop pulls the current Plasma stack and its hard dependencies.
+# Extra lines below are packages we want explicitly, using Testing names only.
+
 task-kde-desktop
 
-# Useful Plasma extras
-plasma-nm
-plasma-pa
-kde-config-sddm
+# Display manager
 sddm
+kde-config-sddm
 
-# Basic system tools that belong with a desktop
+# Network (Plasma-native + NetworkManager)
+plasma-nm
 network-manager
-network-manager-applet
-nm-connection-editor
-bluez
-pulseaudio
+
+# Audio – PipeWire is the default on modern Debian/KDE (not PulseAudio)
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+libspa-0.2-bluetooth
 pavucontrol-qt
+
+# Bluetooth
+bluez
+bluedevil
