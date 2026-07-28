@@ -1,0 +1,8 @@
+# DakuOS SSD policy (documentation + live session hint)
+#
+# On installed systems, root should be mounted with:
+#   defaults,noatime
+# and weekly fstrim.timer should be enabled (see systemd hook).
+#
+# discard=async is left to the filesystem defaults on modern kernels;
+# scheduled TRIM via fstrim is preferred over continuous discard.
