@@ -1,0 +1,13 @@
+# DakuOS: 2-in-1 convertible support
+#
+# When the chassis reports tablet mode (lid folded flat / 360 hinge),
+# iio-sensor-proxy and the desktop session handle rotation and on-screen keyboard.
+# These rules ensure accelerometer / lid / tablet-mode switches are tagged for userspace.
+
+# Generic IIO accelerometer / gyro (used by iio-sensor-proxy for rotation)
+SUBSYSTEM=="iio", KERNEL=="iio*", TAG+="uaccess", TAG+="seat"
+
+# Common laptop tablet-mode switches (ACPI / WMI / Intel HID)
+SUBSYSTEM=="input", ATTRS{name}=="*Tablet Mode Switch*", TAG+="uaccess"
+SUBSYSTEM=="input", ATTRS{name}=="*Intel HID*", TAG+="uaccess"
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_SWITCH}=="1", TAG+="uaccess"
