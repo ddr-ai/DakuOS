@@ -43,23 +43,40 @@ The installer uses udev / modalias detection (via Debian Installer’s `hw-detec
 | Firmware handling     | Detected and installed only as needed              |
 | Custom packages       | Small DakuOS repository (planned)                  |
 
+## Building the ISO
+
+### GitHub Actions (recommended)
+
+A workflow is provided at `.github/workflows/build-iso.yml`.
+
+- **Manual run**: Go to the **Actions** tab → “Build DakuOS ISO” → **Run workflow**
+- **Automatic**: Runs on pushes to `main` that change `auto/`, `config/`, or the workflow itself
+
+The resulting ISO (and build log) is uploaded as a workflow artifact and kept for 14 days.
+
+### Local build
+
+```bash
+# On a Debian Testing host or container (preferred)
+sudo apt install live-build debootstrap squashfs-tools xorriso \
+  isolinux syslinux-utils grub-pc-bin grub-efi-amd64-bin mtools dosfstools
+
+git clone https://github.com/ddr-ai/DakuOS.git
+cd DakuOS
+chmod +x auto/config config/hooks/live/*.hook.chroot
+
+./auto/config          # or: lb config
+sudo lb build 2>&1 | tee build.log
+```
+
+The hybrid ISO will appear in the current directory (e.g. `live-image-amd64.hybrid.iso`).
+
 ## Current Status
 
 - Vision and core decisions locked  
-- Initial `live-build` configuration being added  
-- First ISO builds coming next
-
-## Building
-
-See the `config/` and `auto/` directories (coming online now).
-
-```bash
-# On a Debian Testing host or container
-sudo apt install live-build
-cd DakuOS
-lb config          # or ./auto/config
-sudo lb build
-```
+- Initial `live-build` configuration present  
+- GitHub Actions ISO build workflow added  
+- First successful ISO builds are the next milestone
 
 ## License
 
