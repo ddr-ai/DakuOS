@@ -1,0 +1,24 @@
+# Firmware packages made available for hardware detection
+# The Debian installer (hw-detect) will install only what the actual hardware needs.
+# Extra packages stay on the live medium but are not forced onto the installed system.
+
+firmware-linux-free
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-amd-graphics
+firmware-misc-nonfree
+firmware-atheros
+firmware-bnx2
+firmware-bnx2x
+firmware-brcm80211
+firmware-intel-sound
+firmware-ipw2x00
+firmware-ivtv
+firmware-libertas
+firmware-myricom
+firmware-netxen
+firmware-qlogic
+firmware-samsung
+firmware-siano
+firmware-ti-connectivity
