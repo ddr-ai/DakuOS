@@ -1,0 +1,15 @@
+# DakuOS default desktop – KDE Plasma
+task-kde-desktop
+
+# Useful Plasma extras
+plasma-nm
+plasma-pa
+kde-config-sddm
+sddm
+
+# Basic system tools that belong with a desktop
+network-manager
+network-manager-gnome
+bluez
+pulseaudio
+pavucontrol-qt
