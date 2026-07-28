@@ -1,24 +1,25 @@
-# Firmware packages made available for hardware detection
-# The Debian installer (hw-detect) will install only what the actual hardware needs.
-# Extra packages stay on the live medium but are not forced onto the installed system.
+# Firmware available on the live image for hardware detection.
+# Only packages that currently exist in Debian Testing (Forky) non-free-firmware.
+# Hardware-aware install (udev / hw-detect) still decides what ends up on disk.
 
+# Core free + non-free firmware meta packages
 firmware-linux-free
 firmware-linux-nonfree
+firmware-misc-nonfree
+
+# Common wireless / network
 firmware-iwlwifi
 firmware-realtek
-firmware-amd-graphics
-firmware-misc-nonfree
 firmware-atheros
+firmware-brcm80211
+firmware-libertas
+firmware-ti-connectivity
+
+# Graphics
+firmware-amd-graphics
+
+# Storage / niche NICs still useful on servers and older hardware
 firmware-bnx2
 firmware-bnx2x
-firmware-brcm80211
-firmware-intel-sound
-firmware-ipw2x00
-firmware-ivtv
-firmware-libertas
-firmware-myricom
-firmware-netxen
 firmware-qlogic
-firmware-samsung
-firmware-siano
-firmware-ti-connectivity
+firmware-netxen
