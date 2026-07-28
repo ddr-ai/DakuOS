@@ -1,0 +1,17 @@
+# live-build artifacts
+cache/
+chroot/
+binary/
+.binaries/
+.stage/
+*.iso
+*.img
+*.tar
+*.log
+build.log
+live-image-*
+
+# Temporary / local
+*.swp
+*~
+.DS_Store
