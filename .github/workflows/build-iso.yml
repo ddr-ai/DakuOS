@@ -8,6 +8,7 @@ on:
     paths:
       - 'auto/**'
       - 'config/**'
+      - 'VERSION'
       - '.github/workflows/build-iso.yml'
 
 concurrency:
@@ -57,6 +58,13 @@ jobs:
           chmod +x auto/config
           find config/hooks -type f -name '*.hook.*' -exec chmod +x {} \; || true
 
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Using version: ${VERSION}"
+
       - name: Configure live-build
         run: |
           ./auto/config
@@ -68,25 +76,45 @@ jobs:
           # live-build needs root privileges for chroot stages
           lb build 2>&1 | tee build.log
 
+      - name: Rename ISO to daku-<version>-amd64.iso
+        if: success()
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p daku_iso
+
+          # live-build typically produces live-image-amd64.hybrid.iso
+          SOURCE=$(ls -1 *.hybrid.iso *.iso 2>/dev/null | head -n1)
+
+          if [ -z "$SOURCE" ]; then
+            echo "ERROR: No ISO file found after build"
+            ls -la
+            exit 1
+          fi
+
+          TARGET="daku_iso/daku-${VERSION}-amd64.iso"
+          echo "Renaming ${SOURCE} → ${TARGET}"
+          mv "$SOURCE" "$TARGET"
+          ls -lh daku_iso/
+
       - name: List build results
         if: always()
         run: |
           echo "=== Build directory contents ==="
           ls -lh
           echo
-          echo "=== ISO files ==="
-          ls -lh *.iso 2>/dev/null || echo "No ISO found"
+          echo "=== daku_iso/ ==="
+          ls -lh daku_iso/ 2>/dev/null || echo "(empty or missing)"
 
       - name: Upload ISO artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DakuOS-live-iso
+          name: daku-${{ steps.version.outputs.version }}-amd64
           path: |
-            *.iso
+            daku_iso/daku-${{ steps.version.outputs.version }}-amd64.iso
             build.log
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload build log on failure
         if: failure()
