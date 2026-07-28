@@ -1,0 +1,45 @@
+#!/bin/sh
+set -e
+
+echo "DakuOS: enabling services and applying system policy..."
+
+# ---- Performance / hardware services ----
+systemctl enable fstrim.timer 2>/dev/null || true
+systemctl enable thermald.service 2>/dev/null || true
+systemctl enable power-profiles-daemon.service 2>/dev/null || true
+systemctl enable iio-sensor-proxy.service 2>/dev/null || true
+
+# Make NetworkManager dispatcher executable
+if [ -f /etc/NetworkManager/dispatcher.d/10-dakuos-prefer-high-band ]; then
+  chmod 755 /etc/NetworkManager/dispatcher.d/10-dakuos-prefer-high-band
+fi
+
+# Default power profile: balanced (user can switch to performance in Plasma)
+# power-profiles-daemon has no static default file; Plasma exposes the switch.
+
+# ---- Faster boot: short GRUB timeout, quiet splash ----
+if [ -f /etc/default/grub ]; then
+  sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=2/' /etc/default/grub || true
+  sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"/' /etc/default/grub || true
+  # Remove Debian distributor branding string if present
+  sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR=DakuOS/' /etc/default/grub || true
+fi
+
+# ---- Strip Debian visual branding (logos / wallpaper placeholders) ----
+# Official trademark images are removed; custom DakuOS assets go in
+# /usr/share/dakuos/branding/ (see docs/branding.md).
+
+rm -f /usr/share/desktop-base/debian-logos/* 2>/dev/null || true
+rm -f /usr/share/images/desktop-base/debian-*.svg 2>/dev/null || true
+rm -f /usr/share/images/desktop-base/desktop-grub.png 2>/dev/null || true
+rm -f /usr/share/plymouth/debian-logo.png 2>/dev/null || true
+
+# SDDM default theme branding cleanup (theme itself stays; logo swapped later)
+mkdir -p /usr/share/dakuos/branding
+
+# Plymouth: use a minimal theme name; full custom theme activated when logo is present
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+  plymouth-set-default-theme -R spinner 2>/dev/null || true
+fi
+
+echo "DakuOS: services and branding cleanup done."
