@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# debian-installer temporarily disabled:
+# In current Debian Testing, the installer stage pulls libfuse2 which is
+# no longer available (replaced by libfuse3). We still produce a fully
+# bootable live ISO; the graphical installer can be re-enabled later.
+
 lb config noauto \
   --mode debian \
   --system live \
@@ -12,9 +17,7 @@ lb config noauto \
   --backports false \
   --binary-images iso-hybrid \
   --bootloaders "syslinux grub-efi" \
-  --debian-installer live \
-  --debian-installer-distribution testing \
-  --debian-installer-gui true \
+  --debian-installer none \
   --linux-flavours amd64 \
   --apt-indices false \
   --apt-recommends true \
