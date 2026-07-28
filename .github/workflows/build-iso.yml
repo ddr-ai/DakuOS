@@ -73,6 +73,7 @@ jobs:
 
       - name: Build the ISO
         run: |
+          set -o pipefail
           # live-build needs root privileges for chroot stages
           lb build 2>&1 | tee build.log
 
