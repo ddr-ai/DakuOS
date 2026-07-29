@@ -47,14 +47,22 @@ The installer uses udev / modalias detection (via Debian Installer’s `hw-detec
 
 The live image includes the **Calamares** graphical installer (branded as DakuOS).
 
-1. Boot the ISO (USB or virtual machine).
-2. On the desktop, open **Install DakuOS** (also in the application menu).
-3. Follow the wizard: language → keyboard → disks → user → install.
-4. Reboot when finished (remove the USB when prompted).
+1. Boot the ISO (USB or virtual machine) and choose the first GRUB entry (live session).
+2. After Plasma starts you should get a **Welcome to DakuOS** dialog:
+   - **Install DakuOS** — opens the installer immediately  
+   - **Try without installing** — stays in the live session  
+3. If you dismissed the dialog, install any of these ways:
+   - Application menu → search **Install** or **DakuOS** → **Install DakuOS**
+   - Desktop icon **Install DakuOS** (if desktop icons are enabled)
+   - Terminal: `calamares-install-debian`
+4. Follow the wizard: language → keyboard → disks → user → install.
+5. Reboot when finished (remove the USB when prompted).
 
 Calamares copies the live system to disk, installs GRUB, creates your user, and removes live-only packages (including the installer itself).
 
 > Note: classic `debian-installer` is not on the image (`--debian-installer none`) because of package issues on current Debian Testing. Calamares is the supported install path.
+>
+> Plasma often hides desktop icons by default — that is why the welcome dialog and the application menu entry matter more than a Desktop file alone.
 
 ## Building the ISO
 

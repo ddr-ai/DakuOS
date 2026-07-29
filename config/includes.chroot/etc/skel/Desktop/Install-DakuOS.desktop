@@ -5,11 +5,9 @@ Name=Install DakuOS
 GenericName=DakuOS Installer
 Exec=calamares-install-debian
 Comment=Install DakuOS to your hard drive
-Keywords=calamares;system;install;dakuos;debian;installer;setup
+Keywords=calamares;system;install;dakuos;installer
 Icon=install-dakuos
 Terminal=false
-Categories=Qt;System;Settings;Utility;
+Categories=Qt;System;Settings;
 StartupWMClass=calamares
 StartupNotify=True
-# Show prominently in menus
-NoDisplay=false

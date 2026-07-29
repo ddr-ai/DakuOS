@@ -58,7 +58,36 @@ if [ -f "$PKGS" ] && ! grep -q "calamares'" "$PKGS" 2>/dev/null; then
   fi
 fi
 
-# Polkit: allow live user to run installer without extra friction when possible
-# (pkexec still prompts; live-config typically grants sudo)
+# Ensure helper scripts are executable
+chmod 755 /usr/local/bin/dakuos-live-install-prompt 2>/dev/null || true
+chmod 755 /usr/bin/calamares-install-debian 2>/dev/null || true
+chmod 755 /usr/bin/add-calamares-desktop-icon 2>/dev/null || true
 
-echo "DakuOS: Calamares installer ready (menu: Install DakuOS)."
+# skel Desktop launcher for newly created live user
+if [ -d /etc/skel ]; then
+  mkdir -p /etc/skel/Desktop
+  if [ -f /usr/share/applications/calamares-install-debian.desktop ]; then
+    cp -f /usr/share/applications/calamares-install-debian.desktop \
+      /etc/skel/Desktop/Install-DakuOS.desktop
+    chmod +x /etc/skel/Desktop/Install-DakuOS.desktop
+  fi
+fi
+
+# Soft-fail check so missing packages show up in the build log
+if ! command -v calamares >/dev/null 2>&1; then
+  echo "ERROR: calamares binary not found after package install" >&2
+  exit 1
+fi
+if ! command -v calamares-install-debian >/dev/null 2>&1; then
+  echo "ERROR: calamares-install-debian wrapper missing" >&2
+  exit 1
+fi
+if [ ! -f /etc/calamares/settings.conf ]; then
+  echo "ERROR: /etc/calamares/settings.conf missing" >&2
+  exit 1
+fi
+
+echo "DakuOS: Calamares installer ready."
+echo "  - Application menu: Install DakuOS"
+echo "  - Live login prompt + Desktop launcher"
+echo "  - Polkit: passwordless for live session"

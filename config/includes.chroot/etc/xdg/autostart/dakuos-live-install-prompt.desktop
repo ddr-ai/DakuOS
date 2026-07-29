@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=DakuOS Install Prompt
+Comment=Offer to install DakuOS on first live login
+Exec=/usr/local/bin/dakuos-live-install-prompt
+Icon=install-dakuos
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-Phase=Application
+X-KDE-autostart-phase=2
+X-KDE-autostart-after=panel
+OnlyShowIn=KDE;GNOME;XFCE;LXQt;LXDE;MATE;Cinnamon;

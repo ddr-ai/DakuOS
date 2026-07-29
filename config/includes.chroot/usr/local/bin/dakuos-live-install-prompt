@@ -1,0 +1,71 @@
+#!/bin/sh
+# Show a clear Install prompt on the DakuOS live session.
+# Plasma often hides desktop icons, so relying on a Desktop launcher alone
+# is not enough for many users.
+
+set -eu
+
+# Only on live media
+if [ ! -d /lib/live/mount ] && ! grep -q 'boot=live' /proc/cmdline 2>/dev/null; then
+  exit 0
+fi
+
+# Once per user session (flag in runtime dir)
+FLAG="${XDG_RUNTIME_DIR:-/tmp}/dakuos-install-prompted"
+if [ -f "$FLAG" ]; then
+  exit 0
+fi
+: > "$FLAG" 2>/dev/null || true
+
+# Place/refresh Desktop launcher (helps if icons are enabled)
+DESKTOP=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+mkdir -p "$DESKTOP"
+SRC=/usr/share/applications/calamares-install-debian.desktop
+if [ -f "$SRC" ]; then
+  cp -f "$SRC" "$DESKTOP/Install-DakuOS.desktop"
+  chmod +x "$DESKTOP/Install-DakuOS.desktop"
+  # Mark trusted for Plasma/GIO
+  if command -v gio >/dev/null 2>&1; then
+    gio set "$DESKTOP/Install-DakuOS.desktop" metadata::trusted true 2>/dev/null || true
+  fi
+fi
+
+# Wait for Plasma shell so kdialog is usable
+i=0
+while [ "$i" -lt 60 ]; do
+  if pgrep -x plasmashell >/dev/null 2>&1 || pgrep -x kwin_wayland >/dev/null 2>&1 || pgrep -x kwin_x11 >/dev/null 2>&1; then
+    break
+  fi
+  i=$((i + 1))
+  sleep 1
+done
+sleep 2
+
+TITLE="Welcome to DakuOS"
+MSG="You are running the DakuOS live environment.
+
+Install DakuOS permanently to this computer, or continue trying the live session.
+
+Tip: you can also open \"Install DakuOS\" from the application menu (search: Install)."
+
+if command -v kdialog >/dev/null 2>&1; then
+  if kdialog --title "$TITLE" --yesno "$MSG" \
+      --yes-label "Install DakuOS" \
+      --no-label "Try without installing"; then
+    if command -v calamares-install-debian >/dev/null 2>&1; then
+      calamares-install-debian &
+    elif command -v calamares >/dev/null 2>&1; then
+      pkexec calamares &
+    fi
+  fi
+elif command -v zenity >/dev/null 2>&1; then
+  if zenity --question --title="$TITLE" --text="$MSG" \
+      --ok-label="Install DakuOS" --cancel-label="Try without installing"; then
+    calamares-install-debian &
+  fi
+else
+  # Fallback: at least start the installer (user can close it)
+  notify-send "DakuOS" "Open Install DakuOS from the application menu to install." 2>/dev/null || true
+fi
+
+exit 0

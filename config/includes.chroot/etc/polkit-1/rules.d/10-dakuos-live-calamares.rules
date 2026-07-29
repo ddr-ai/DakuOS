@@ -1,0 +1,14 @@
+// Allow the active local live user to run Calamares without an admin password.
+// Live images often use an empty or unknown password; pkexec would otherwise
+// block the installer with no useful feedback.
+polkit.addRule(function(action, subject) {
+    if (action.id !== "io.calamares.calamares.pkexec.run") {
+        return;
+    }
+    if (!subject.local || !subject.active) {
+        return;
+    }
+    // Prefer live session markers
+    // (subject.user is typically "user" from live-config)
+    return polkit.Result.YES;
+});

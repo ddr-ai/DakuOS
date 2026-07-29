@@ -20,3 +20,8 @@ btrfs-progs
 xfsprogs
 ntfs-3g
 gparted
+
+# Welcome / Install prompt UI (KDE)
+kdialog
+policykit-1
+polkitd
