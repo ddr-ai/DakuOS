@@ -1,0 +1,113 @@
+#!/bin/sh
+set -e
+
+echo "DakuOS: installing custom branding (logo, Plymouth, SDDM, GRUB)..."
+
+BRAND=/usr/share/dakuos/branding
+mkdir -p "$BRAND"
+mkdir -p /usr/share/plymouth/themes/dakuos
+mkdir -p /usr/share/sddm/themes/dakuos
+mkdir -p /boot/grub
+
+# Decode logo assets if base64 sources are present
+decode_b64() {
+  src="$1"
+  dest="$2"
+  if [ -f "$src" ]; then
+    tr -d ' \n\r\t' < "$src" | base64 -d > "$dest"
+    echo "  decoded $(basename "$dest")"
+  fi
+}
+
+decode_b64 "$BRAND/logo-boot.jpg.b64" "$BRAND/logo-boot.jpg"
+decode_b64 "$BRAND/logo-icon.jpg.b64" "$BRAND/logo-icon.jpg"
+
+if [ -f "$BRAND/logo-boot.jpg" ]; then
+  cp -f "$BRAND/logo-boot.jpg" "$BRAND/logo.jpg"
+  cp -f "$BRAND/logo-boot.jpg" "$BRAND/logo-login.jpg"
+  cp -f "$BRAND/logo-boot.jpg" "$BRAND/logo-grub.jpg"
+fi
+
+# ---- Plymouth theme ----
+if [ -f "$BRAND/logo-boot.jpg" ]; then
+  cp -f "$BRAND/logo-boot.jpg" /usr/share/plymouth/themes/dakuos/logo.jpg
+  cat > /usr/share/plymouth/themes/dakuos/dakuos.plymouth << 'EOF'
+[Plymouth Theme]
+Name=DakuOS
+Description=DakuOS fiery logo splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/dakuos
+ScriptFile=/usr/share/plymouth/themes/dakuos/dakuos.script
+EOF
+
+  cat > /usr/share/plymouth/themes/dakuos/dakuos.script << 'EOF'
+wallpaper_image = Image("logo.jpg");
+screen_width = Window.GetWidth();
+screen_height = Window.GetHeight();
+max_w = screen_width * 0.6;
+max_h = screen_height * 0.5;
+scale = Math.Min(max_w / wallpaper_image.GetWidth(), max_h / wallpaper_image.GetHeight());
+scaled = wallpaper_image.Scale(wallpaper_image.GetWidth() * scale, wallpaper_image.GetHeight() * scale);
+logo_sprite = Sprite(scaled);
+logo_sprite.SetX((screen_width - scaled.GetWidth()) / 2);
+logo_sprite.SetY((screen_height - scaled.GetHeight()) / 2 - 40);
+fun progress_callback(duration, progress) {
+}
+Plymouth.SetProgressFunction(progress_callback);
+EOF
+
+  if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    plymouth-set-default-theme -R dakuos 2>/dev/null || plymouth-set-default-theme dakuos 2>/dev/null || true
+  fi
+  echo "  Plymouth theme: dakuos"
+fi
+
+# ---- SDDM ----
+if [ -f "$BRAND/logo-login.jpg" ]; then
+  cp -f "$BRAND/logo-login.jpg" /usr/share/sddm/themes/dakuos/background.jpg
+  mkdir -p /etc/sddm.conf.d
+  cat > /etc/sddm.conf.d/10-dakuos.conf << 'EOF'
+[Theme]
+Current=breeze
+CursorTheme=breeze_cursors
+EOF
+  mkdir -p /usr/share/sddm/themes/breeze
+  cp -f "$BRAND/logo-login.jpg" /usr/share/sddm/themes/breeze/dakuos-background.jpg 2>/dev/null || true
+  echo "  SDDM background installed"
+fi
+
+# ---- GRUB ----
+if [ -f "$BRAND/logo-grub.jpg" ]; then
+  cp -f "$BRAND/logo-grub.jpg" /boot/grub/dakuos-background.jpg
+  mkdir -p /usr/share/images/desktop-base
+  cp -f "$BRAND/logo-grub.jpg" /usr/share/images/desktop-base/desktop-grub.jpg 2>/dev/null || true
+  if [ -f /etc/default/grub ]; then
+    if grep -q '^GRUB_BACKGROUND=' /etc/default/grub; then
+      sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND=/boot/grub/dakuos-background.jpg|' /etc/default/grub
+    else
+      echo 'GRUB_BACKGROUND=/boot/grub/dakuos-background.jpg' >> /etc/default/grub
+    fi
+    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR=DakuOS/' /etc/default/grub || true
+  fi
+  echo "  GRUB background set"
+fi
+
+# Desktop wallpaper
+mkdir -p /usr/share/wallpapers/DakuOS/contents/images
+if [ -f "$BRAND/logo-boot.jpg" ]; then
+  cp -f "$BRAND/logo-boot.jpg" /usr/share/wallpapers/DakuOS/contents/images/1920x1080.jpg
+  cat > /usr/share/wallpapers/DakuOS/metadata.json << 'EOF'
+{
+  "KPlugin": {
+    "Authors": [ { "Name": "DakuOS" } ],
+    "Id": "DakuOS",
+    "Name": "DakuOS",
+    "License": "Proprietary"
+  }
+}
+EOF
+fi
+
+echo "DakuOS: branding install finished."

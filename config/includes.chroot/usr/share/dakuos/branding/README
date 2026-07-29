@@ -1,2 +1,6 @@
-Put logo.png, logo-boot.png, logo-login.png, and logo-grub.png in this directory.
-See docs/branding.md for sizes and how they are used.
+Official DakuOS logo assets (base64-encoded JPG).
+
+- logo-boot.jpg.b64  — boot splash, login, GRUB, wallpaper
+- logo-icon.jpg.b64  — smaller icon variant
+
+Decoded at build time by config/hooks/live/030-dakuos-branding.hook.chroot

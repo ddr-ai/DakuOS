@@ -1,36 +1,28 @@
 # DakuOS branding
 
-Debian logos, trademark images, and default distributor artwork are removed from the live image during build.
+Debian logos and trademark artwork are removed during the image build.
 
-## Where your logo goes
+## Official logo
 
-Place your logo files in the repository under:
+The fiery **DAKU** mark is the official logo. Assets live at:
 
 ```text
-config/includes.chroot/usr/share/dakuos/branding/
+config/includes.chroot/usr/share/dakuos/branding/logo-boot.jpg.b64
+config/includes.chroot/usr/share/dakuos/branding/logo-icon.jpg.b64
 ```
 
-| File | Purpose | Recommended size |
-|------|---------|------------------|
-| `logo.png` | General logo (login, menus) | 512×512 PNG, transparent |
-| `logo-boot.png` | Plymouth splash (boot screen) | 1920×1080 or 2560×1440 PNG |
-| `logo-login.png` | SDDM login screen background / watermark | 1920×1080 PNG |
-| `logo-grub.png` | GRUB menu background | 1920×1080 PNG |
+Hook `030-dakuos-branding.hook.chroot` decodes them and installs:
 
-After you upload these files into the repo (or drop them into that path before a local build), a follow-up hook will wire them into:
+| Surface | Target |
+|---------|--------|
+| Boot splash (Plymouth) | `/usr/share/plymouth/themes/dakuos/` |
+| Login (SDDM) | Breeze theme background |
+| GRUB menu | `/boot/grub/dakuos-background.jpg` |
+| Desktop wallpaper | `/usr/share/wallpapers/DakuOS/` |
 
-1. **Plymouth** – image shown while the kernel and services start  
-2. **SDDM** – login screen  
-3. **GRUB** – boot menu background  
-4. **Plasma** – application menu / about dialog (optional)
+## Replacing the logo
 
-## Current state
-
-- Debian branding files are deleted in `020-dakuos-services.hook.chroot`
-- Plymouth uses the neutral `spinner` theme until a custom theme is added
-- `GRUB_DISTRIBUTOR` is set to `DakuOS`
-- Directory `/usr/share/dakuos/branding/` is created and ready for your assets
-
-## Next step for you
-
-Upload your logo image(s). Once they are in the repo under the path above, say so and the Plymouth + SDDM + GRUB themes will be connected to those files automatically.
+1. Decode: `base64 -d logo-boot.jpg.b64 > logo.jpg`
+2. Edit / replace the image
+3. Re-encode: `base64 -w0 logo.jpg > logo-boot.jpg.b64`
+4. Rebuild the ISO
