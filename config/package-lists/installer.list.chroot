@@ -23,5 +23,6 @@ gparted
 
 # Welcome / Install prompt UI (KDE)
 kdialog
-policykit-1
+# Polkit (policykit-1 transitional name is gone on Testing/Forky)
 polkitd
+pkexec
