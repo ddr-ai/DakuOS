@@ -43,6 +43,19 @@ The installer uses udev / modalias detection (via Debian Installer’s `hw-detec
 | Firmware handling     | Detected and installed only as needed              |
 | Custom packages       | Small DakuOS repository (planned)                  |
 
+## Installing from a live USB
+
+The live image includes the **Calamares** graphical installer (branded as DakuOS).
+
+1. Boot the ISO (USB or virtual machine).
+2. On the desktop, open **Install DakuOS** (also in the application menu).
+3. Follow the wizard: language → keyboard → disks → user → install.
+4. Reboot when finished (remove the USB when prompted).
+
+Calamares copies the live system to disk, installs GRUB, creates your user, and removes live-only packages (including the installer itself).
+
+> Note: classic `debian-installer` is not on the image (`--debian-installer none`) because of package issues on current Debian Testing. Calamares is the supported install path.
+
 ## Building the ISO
 
 ### GitHub Actions (recommended)
@@ -76,7 +89,8 @@ The hybrid ISO will appear in the current directory (e.g. `live-image-amd64.hybr
 - Vision and core decisions locked  
 - Initial `live-build` configuration present  
 - GitHub Actions ISO build workflow added  
-- First successful ISO builds are the next milestone
+- Successful hybrid ISO builds with branding  
+- Calamares installer on the live desktop (Install DakuOS)
 
 ## License
 

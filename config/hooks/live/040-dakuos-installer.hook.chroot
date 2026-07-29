@@ -1,0 +1,64 @@
+#!/bin/sh
+set -e
+
+echo "DakuOS: configuring Calamares installer..."
+
+# Sync product version from /etc/os-release or VERSION if present
+VERSION="0.1.0"
+if [ -f /etc/dakuos-version ]; then
+  VERSION=$(tr -d '[:space:]' < /etc/dakuos-version)
+elif [ -f /VERSION ]; then
+  VERSION=$(tr -d '[:space:]' < /VERSION)
+fi
+SHORT=$(printf '%s' "$VERSION" | cut -d. -f1-2)
+
+BRANDING=/etc/calamares/branding/debian/branding.desc
+if [ -f "$BRANDING" ]; then
+  # Ensure product strings say DakuOS (includes.chroot should already set this)
+  sed -i \
+    -e "s/^[[:space:]]*productName:.*/    productName:         DakuOS/" \
+    -e "s/^[[:space:]]*shortProductName:.*/    shortProductName:    DakuOS/" \
+    -e "s/^[[:space:]]*version:.*/    version:             ${VERSION}/" \
+    -e "s/^[[:space:]]*shortVersion:.*/    shortVersion:        ${SHORT}/" \
+    -e "s/^[[:space:]]*versionedName:.*/    versionedName:       DakuOS ${VERSION}/" \
+    -e "s/^[[:space:]]*shortVersionedName:.*/    shortVersionedName:  DakuOS ${SHORT}/" \
+    -e "s/^[[:space:]]*bootloaderEntryName:.*/    bootloaderEntryName: DakuOS/" \
+    "$BRANDING"
+  echo "  Calamares branding: DakuOS ${VERSION}"
+fi
+
+# Prefer Daku logo for the Install launcher icon
+if [ -f /usr/share/pixmaps/install-dakuos.png ]; then
+  cp -f /usr/share/pixmaps/install-dakuos.png /usr/share/pixmaps/install-debian.png
+fi
+
+# Desktop launcher text (package default says "Install Debian")
+DESKTOP=/usr/share/applications/calamares-install-debian.desktop
+if [ -f "$DESKTOP" ]; then
+  sed -i \
+    -e 's/^Name=.*/Name=Install DakuOS/' \
+    -e 's/^GenericName=.*/GenericName=DakuOS Installer/' \
+    -e 's/^Comment=.*/Comment=Install DakuOS to your hard drive (Calamares)/' \
+    -e 's/^Icon=.*/Icon=install-dakuos/' \
+    "$DESKTOP"
+  echo "  desktop entry: Install DakuOS"
+fi
+
+# Make sure live desktop icon helper uses our Name for LXDE-style links
+if [ -f /usr/bin/add-calamares-desktop-icon ]; then
+  sed -i 's/Name=Install Debian/Name=Install DakuOS/g' /usr/bin/add-calamares-desktop-icon || true
+fi
+
+# Ensure packages.conf drops the installer from the installed system
+PKGS=/etc/calamares/modules/packages.conf
+if [ -f "$PKGS" ] && ! grep -q "calamares'" "$PKGS" 2>/dev/null; then
+  # Already shipped via includes; if package default remains, inject remove lines
+  if grep -q "calamares-settings-debian" "$PKGS"; then
+    sed -i "/calamares-settings-debian/a\\      - 'calamares'" "$PKGS" || true
+  fi
+fi
+
+# Polkit: allow live user to run installer without extra friction when possible
+# (pkexec still prompts; live-config typically grants sudo)
+
+echo "DakuOS: Calamares installer ready (menu: Install DakuOS)."

@@ -1,0 +1,39 @@
+---
+componentName:   debian
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 800px,580px
+windowPlacement: center
+
+strings:
+    productName:         DakuOS
+    shortProductName:    DakuOS
+    version:             0.1.0
+    shortVersion:        0.1
+    versionedName:       DakuOS 0.1.0
+    shortVersionedName:  DakuOS 0.1
+    bootloaderEntryName: DakuOS
+    productUrl:          https://github.com/ddr-ai/DakuOS
+    supportUrl:          https://github.com/ddr-ai/DakuOS/issues
+    knownIssuesUrl:      https://github.com/ddr-ai/DakuOS/issues
+    releaseNotesUrl:     https://github.com/ddr-ai/DakuOS
+    donateUrl:           https://github.com/ddr-ai/DakuOS
+
+sidebar: widget
+navigation: widget
+
+images:
+    productLogo:         "debian-logo.png"
+    productIcon:         "debian-logo.png"
+    productWelcome:      "welcome.png"
+
+slideshow:               "show.qml"
+
+style:
+   SidebarBackground:    "#1a0a0a"
+   SidebarText:          "#FFFFFF"
+   SidebarTextCurrent:   "#fbfbfb"
+   SidebarBackgroundCurrent: "#5c1a1a"
+
+slideshowAPI: 2

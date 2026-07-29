@@ -1,0 +1,22 @@
+# Graphical installer for the live session (Calamares)
+#
+# calamares-settings-debian provides the Debian live install sequence
+# (unpack squashfs, users, bootloader, remove live packages).
+# We brand it as DakuOS via includes.chroot + the installer hook.
+
+calamares
+calamares-settings-debian
+
+# Required by the unpackfs step
+rsync
+
+# Dual-boot detection for the bootloader page
+os-prober
+
+# Partitioning helpers commonly expected on live media
+dosfstools
+e2fsprogs
+btrfs-progs
+xfsprogs
+ntfs-3g
+gparted

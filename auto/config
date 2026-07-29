@@ -1,10 +1,9 @@
 #!/bin/sh
 set -e
 
-# debian-installer temporarily disabled:
-# In current Debian Testing, the installer stage pulls libfuse2 which is
-# no longer available (replaced by libfuse3). We still produce a fully
-# bootable live ISO; the graphical installer can be re-enabled later.
+# debian-installer is disabled (fuse2 unavailable on current Testing).
+# Installation from the live session uses Calamares instead
+# (see config/package-lists/installer.list.chroot).
 
 lb config noauto \
   --mode debian \
