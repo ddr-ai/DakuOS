@@ -1,6 +1,18 @@
-Official DakuOS logo assets (base64-encoded JPG).
+Official DakuOS logo assets.
 
-- logo-boot.jpg.b64  — boot splash, login, GRUB, wallpaper
-- logo-icon.jpg.b64  — smaller icon variant
+Preferred files (decoded JPEGs, installed into the live image):
 
-Decoded at build time by config/hooks/live/030-dakuos-branding.hook.chroot
+- logo-boot.jpg   — boot splash, login, GRUB, wallpaper
+- logo-icon.jpg   — smaller icon variant
+
+Also accepted by the branding hook (copied to logo-boot.jpg if needed):
+
+- boot-logo.jpeg / boot-logo.jpg / logo-boot.jpeg / *.png
+
+Optional base64 fallbacks (decoded at build time; bad input is skipped,
+not a hard failure):
+
+- logo-boot.jpg.b64  or  logo-boot.jpg.b64.part*
+- logo-icon.jpg.b64
+
+Processed by config/hooks/live/030-dakuos-branding.hook.chroot
