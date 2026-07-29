@@ -12,15 +12,13 @@ thermald
 power-profiles-daemon
 intel-gpu-tools
 mesa-vulkan-drivers
-intel-media-va-driver-non-free
+intel-media-va-driver
 i965-va-driver
-libva-utils
 vulkan-tools
 
 # ---- Sensors / 2-in-1 tablet mode + rotation ----
 iio-sensor-proxy
-# On-screen keyboard when in tablet mode (Plasma)
-plasma-mobile-settings
+# plasma-mobile-settings removed – not applicable to desktop Plasma
 maliit-keyboard
 maliit-framework
 
@@ -31,7 +29,7 @@ wireless-tools
 rfkill
 
 # ---- SSD / storage performance ----
-fstrim
+# fstrim is provided by util-linux (already present); fstrim.timer is enabled in hook
 nvme-cli
 smartmontools
 
