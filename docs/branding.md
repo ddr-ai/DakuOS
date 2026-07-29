@@ -1,28 +1,41 @@
 # DakuOS branding
 
-Debian logos and trademark artwork are removed during the image build.
+Debian logos and trademark artwork are stripped during the image build.
 
 ## Official logo
 
-The fiery **DAKU** mark is the official logo. Assets live at:
+The fiery **DAKU** mark is the official logo.
+
+### Recommended: drop the JPEG into the repo
+
+1. Save your logo image as `logo-boot.jpg` (black background works best).
+2. Upload it on GitHub to:
 
 ```text
-config/includes.chroot/usr/share/dakuos/branding/logo-boot.jpg.b64
-config/includes.chroot/usr/share/dakuos/branding/logo-icon.jpg.b64
+config/includes.chroot/usr/share/dakuos/branding/logo-boot.jpg
 ```
 
-Hook `030-dakuos-branding.hook.chroot` decodes them and installs:
+   Use **Add file → Upload files** in that folder on GitHub.
 
-| Surface | Target |
-|---------|--------|
-| Boot splash (Plymouth) | `/usr/share/plymouth/themes/dakuos/` |
-| Login (SDDM) | Breeze theme background |
-| GRUB menu | `/boot/grub/dakuos-background.jpg` |
-| Desktop wallpaper | `/usr/share/wallpapers/DakuOS/` |
+3. Rebuild the ISO. The branding hook wires it to:
 
-## Replacing the logo
+| Surface | Where it appears |
+|---------|------------------|
+| **Plymouth** | Boot splash while the system starts |
+| **SDDM** | Login screen background |
+| **GRUB** | Boot menu background |
+| **Plasma** | DakuOS wallpaper |
 
-1. Decode: `base64 -d logo-boot.jpg.b64 > logo.jpg`
-2. Edit / replace the image
-3. Re-encode: `base64 -w0 logo.jpg > logo-boot.jpg.b64`
-4. Rebuild the ISO
+### Alternate: base64 assets
+
+- `logo-boot.jpg.b64` (or ordered `.part00`, `.part01`, … files)
+- `logo-icon.jpg.b64` (smaller icon; already present in the repo)
+
+Hook `030-dakuos-branding.hook.chroot` decodes these at build time.
+
+## Current status
+
+- Debian branding removed
+- `GRUB_DISTRIBUTOR=DakuOS`
+- Icon asset present
+- **Upload full-quality `logo-boot.jpg` for the best boot and login splash**
