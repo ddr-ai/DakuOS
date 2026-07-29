@@ -32,14 +32,19 @@ fi
 rm -f /usr/share/desktop-base/debian-logos/* 2>/dev/null || true
 rm -f /usr/share/images/desktop-base/debian-*.svg 2>/dev/null || true
 rm -f /usr/share/images/desktop-base/desktop-grub.png 2>/dev/null || true
-rm -f /usr/share/plymouth/debian-logo.png 2>/dev/null || true
+
+# Keep /usr/share/plymouth/debian-logo.png present: the plymouth initramfs
+# hook always copies it. Do not delete it here. 030-dakuos-branding replaces
+# it with the DakuOS logo when available; includes.chroot also ships a default.
 
 # SDDM default theme branding cleanup (theme itself stays; logo swapped later)
 mkdir -p /usr/share/dakuos/branding
 
-# Plymouth: use a minimal theme name; full custom theme activated when logo is present
+# Plymouth: set a minimal theme name without rebuilding initramfs here.
+# live-build chroot_hacks regenerates initramfs later; using -R mid-hook
+# both hides failures (|| true) and races that step.
 if command -v plymouth-set-default-theme >/dev/null 2>&1; then
-  plymouth-set-default-theme -R spinner 2>/dev/null || true
+  plymouth-set-default-theme spinner 2>/dev/null || true
 fi
 
 echo "DakuOS: services and branding cleanup done."

@@ -86,6 +86,20 @@ if [ -f "$BRAND/logo-boot.jpg" ]; then
 
   # Plymouth
   cp -f "$BRAND/logo-boot.jpg" /usr/share/plymouth/themes/dakuos/logo.jpg
+  # initramfs-tools plymouth hook always requires this path to exist.
+  if [ -f /usr/share/plymouth/debian-logo.png ]; then
+    : # already provided via includes.chroot or desktop-base
+  elif [ -f "$BRAND/logo-boot.png" ]; then
+    cp -f "$BRAND/logo-boot.png" /usr/share/plymouth/debian-logo.png
+  elif command -v magick >/dev/null 2>&1; then
+    magick "$BRAND/logo-boot.jpg" -resize 128x128 /usr/share/plymouth/debian-logo.png
+  elif command -v convert >/dev/null 2>&1; then
+    convert "$BRAND/logo-boot.jpg" -resize 128x128 /usr/share/plymouth/debian-logo.png
+  fi
+  # Prefer Daku logo even when a stock file already exists
+  if [ -f "$BRAND/logo-boot.png" ]; then
+    cp -f "$BRAND/logo-boot.png" /usr/share/plymouth/debian-logo.png
+  fi
   cat > /usr/share/plymouth/themes/dakuos/dakuos.plymouth << 'EOF'
 [Plymouth Theme]
 Name=DakuOS
@@ -111,8 +125,9 @@ fun progress_callback(duration, progress) {
 }
 Plymouth.SetProgressFunction(progress_callback);
 EOF
+  # Set theme only; do not rebuild initramfs here (-R). live-build does that later.
   if command -v plymouth-set-default-theme >/dev/null 2>&1; then
-    plymouth-set-default-theme -R dakuos 2>/dev/null || plymouth-set-default-theme dakuos 2>/dev/null || true
+    plymouth-set-default-theme dakuos 2>/dev/null || true
   fi
   echo "  Plymouth theme: dakuos"
 
